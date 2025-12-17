@@ -20,6 +20,17 @@
 <body>
     <div class="container">
         <h1>Bài Tập: Frontend kết nối Backend + DB</h1>
+
+        <div style="display:flex; gap:12px; align-items:center; margin-bottom:12px">
+            <label style="font-size:14px; color:#374151">Chế độ:</label>
+            <select id="mode" style="padding:6px;border-radius:6px;border:1px solid #d1d5db">
+                <option value="auto">Tự động (API → fallback)</option>
+                <option value="api">Chỉ API</option>
+                <option value="local">Chỉ Local (offline)</option>
+            </select>
+            <div id="status" style="margin-left:auto;color:#6b7280;font-size:14px"></div>
+        </div>
+
         <form id="addForm">
             <input id="title" type="text" placeholder="Tiêu đề item..." required />
             <button type="submit">Thêm</button>
@@ -33,27 +44,68 @@
         const form = document.getElementById('addForm');
         const titleInput = document.getElementById('title');
 
+        // --- Storage helpers (local fallback) ---
+        const LOCAL_KEY = 'bt_items_v1';
+        function loadLocal(){
+            try{ return JSON.parse(localStorage.getItem(LOCAL_KEY) || '[]') }catch(e){ return [] }
+        }
+        function saveLocal(items){ localStorage.setItem(LOCAL_KEY, JSON.stringify(items)) }
+
+        // --- Mode handling: auto | api | local ---
+        const modeEl = document.getElementById('mode');
+        const statusEl = document.getElementById('status');
+        function setStatus(text){ statusEl.textContent = text }
+        function getMode(){ return modeEl.value }
+
         async function fetchItems(){
+            const mode = getMode();
+            if(mode === 'local'){
+                render(loadLocal());
+                setStatus('Local (offline)');
+                return;
+            }
+
             try{
-                const res = await fetch('/api/items');
+                const res = await fetchWithTimeout('/api/items', { timeout: 3000 });
                 const items = await res.json();
                 render(items);
-            }catch(e){ listEl.innerHTML = '<li>Không thể kết nối tới server.</li>' }
+                setStatus('API (online)');
+            }catch(e){
+                if(mode === 'api'){
+                    listEl.innerHTML = '<li>Không thể kết nối tới server.</li>';
+                    setStatus('API thất bại');
+                }else{
+                    // fallback to local
+                    render(loadLocal());
+                    setStatus('Fallback → Local');
+                }
+            }
+        }
+
+        function fetchWithTimeout(resource, options = {}){
+            const { timeout = 5000 } = options;
+            return Promise.race([
+                fetch(resource, options),
+                new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), timeout))
+            ]);
         }
 
         function render(items){
             if(!items || items.length===0){ listEl.innerHTML = '<li>Chưa có item nào.</li>'; return }
-            listEl.innerHTML = items.map(it=>`
-                <li data-id="${it.id}">
+            listEl.innerHTML = items.map(it=>{
+                const id = it.id ?? it._local_id;
+                const created = it.created_at ?? it.created_at_local ?? new Date().toISOString();
+                return `
+                <li data-id="${id}">
                     <div>
                         <div><strong>${escapeHtml(it.title)}</strong></div>
-                        <div class="meta">#${it.id} • ${new Date(it.created_at).toLocaleString()}</div>
+                        <div class="meta">#${id} • ${new Date(created).toLocaleString()}</div>
                     </div>
                     <div>
-                        <button class="del" onclick="deleteItem(${it.id})">Xóa</button>
+                        <button class="del" onclick="deleteItem('${id}')">Xóa</button>
                     </div>
-                </li>
-            `).join('');
+                </li>`
+            }).join('');
         }
 
         function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])) }
@@ -62,19 +114,67 @@
             e.preventDefault();
             const title = titleInput.value.trim();
             if(!title) return;
-            await fetch('/api/items',{ method: 'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({title}) });
-            titleInput.value = '';
-            fetchItems();
+            const mode = getMode();
+            if(mode === 'local'){
+                const items = loadLocal();
+                const localItem = { _local_id: Date.now(), title, created_at_local: new Date().toISOString() };
+                items.unshift(localItem);
+                saveLocal(items);
+                titleInput.value = '';
+                fetchItems();
+                return;
+            }
+
+            // try API first
+            try{
+                await fetch('/api/items',{ method: 'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({title}) });
+                titleInput.value = '';
+                fetchItems();
+            }catch(e){
+                if(mode === 'api'){
+                    alert('Không thể kết nối tới server.');
+                }else{
+                    // fallback to local
+                    const items = loadLocal();
+                    const localItem = { _local_id: Date.now(), title, created_at_local: new Date().toISOString() };
+                    items.unshift(localItem);
+                    saveLocal(items);
+                    titleInput.value = '';
+                    fetchItems();
+                }
+            }
         });
 
         async function deleteItem(id){
             if(!confirm('Xóa item #' + id + '?')) return;
-            await fetch('/api/items/'+id, { method: 'DELETE' });
-            fetchItems();
+            const mode = getMode();
+            if(mode === 'local'){
+                const items = loadLocal().filter(it => String((it.id ?? it._local_id)) !== String(id));
+                saveLocal(items);
+                fetchItems();
+                return;
+            }
+            // try API delete first
+            try{
+                await fetch('/api/items/'+id, { method: 'DELETE' });
+                fetchItems();
+            }catch(e){
+                if(mode === 'api'){
+                    alert('Không thể kết nối tới server.');
+                }else{
+                    // fallback to local deletion
+                    const items = loadLocal().filter(it => String((it.id ?? it._local_id)) !== String(id));
+                    saveLocal(items);
+                    fetchItems();
+                }
+            }
         }
 
-        fetchItems();
+        modeEl.addEventListener('change', fetchItems);
+        // expose delete for inline onclick
         window.deleteItem = deleteItem;
+        // initial try
+        fetchItems();
     </script>
 </body>
 </html>
