@@ -1,20 +1,80 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Project 2 - Netlify</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Project 2 - Frontend</title>
     <style>
-        body { background-color: #f0f0f0; font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; }
-        .card { background: white; padding: 40px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); text-align: center; }
-        h1 { color: orange; }
+        body { background:#f6f8fa; font-family:Inter,Segoe UI,Arial; margin:0; padding:24px; }
+        .container { max-width:720px; margin:40px auto; background:#fff; padding:24px; border-radius:8px; box-shadow:0 6px 18px rgba(0,0,0,0.06); }
+        h1{ margin:0 0 12px; color:#1f2937 }
+        form { display:flex; gap:8px; margin-bottom:16px }
+        input[type="text"]{ flex:1; padding:10px 12px; border:1px solid #d1d5db; border-radius:6px }
+        button{ padding:10px 14px; background:#f97316; color:#fff; border:none; border-radius:6px; cursor:pointer }
+        ul{ list-style:none; padding:0; margin:0 }
+        li{ display:flex; justify-content:space-between; gap:12px; padding:8px 0; border-bottom:1px solid #eef2f7 }
+        .meta{ color:#6b7280; font-size:13px }
+        .del{ background:#ef4444 }
     </style>
 </head>
 <body>
-    <div class="card">
-        <h1>Bài Tập của Nguyễn Phan Tuấn Linh</h1>
-        <p>Chạy trên nền tảng <b>Netlify</b></p>
-        <p>Trạng thái: <b>Đã kết nối CI/CD</b></p>
+    <div class="container">
+        <h1>Bài Tập: Frontend kết nối Backend + DB</h1>
+        <form id="addForm">
+            <input id="title" type="text" placeholder="Tiêu đề item..." required />
+            <button type="submit">Thêm</button>
+        </form>
+
+        <ul id="list">Loading...</ul>
     </div>
+
+    <script>
+        const listEl = document.getElementById('list');
+        const form = document.getElementById('addForm');
+        const titleInput = document.getElementById('title');
+
+        async function fetchItems(){
+            try{
+                const res = await fetch('/api/items');
+                const items = await res.json();
+                render(items);
+            }catch(e){ listEl.innerHTML = '<li>Không thể kết nối tới server.</li>' }
+        }
+
+        function render(items){
+            if(!items || items.length===0){ listEl.innerHTML = '<li>Chưa có item nào.</li>'; return }
+            listEl.innerHTML = items.map(it=>`
+                <li data-id="${it.id}">
+                    <div>
+                        <div><strong>${escapeHtml(it.title)}</strong></div>
+                        <div class="meta">#${it.id} • ${new Date(it.created_at).toLocaleString()}</div>
+                    </div>
+                    <div>
+                        <button class="del" onclick="deleteItem(${it.id})">Xóa</button>
+                    </div>
+                </li>
+            `).join('');
+        }
+
+        function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])) }
+
+        form.addEventListener('submit', async e=>{
+            e.preventDefault();
+            const title = titleInput.value.trim();
+            if(!title) return;
+            await fetch('/api/items',{ method: 'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({title}) });
+            titleInput.value = '';
+            fetchItems();
+        });
+
+        async function deleteItem(id){
+            if(!confirm('Xóa item #' + id + '?')) return;
+            await fetch('/api/items/'+id, { method: 'DELETE' });
+            fetchItems();
+        }
+
+        fetchItems();
+        window.deleteItem = deleteItem;
+    </script>
 </body>
 </html>
