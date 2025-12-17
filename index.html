@@ -1,180 +1,576 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Project 2 - Frontend</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Innovate - Tương Lai Bắt Đầu Từ Đây</title>
     <style>
-        body { background:#f6f8fa; font-family:Inter,Segoe UI,Arial; margin:0; padding:24px; }
-        .container { max-width:720px; margin:40px auto; background:#fff; padding:24px; border-radius:8px; box-shadow:0 6px 18px rgba(0,0,0,0.06); }
-        h1{ margin:0 0 12px; color:#1f2937 }
-        form { display:flex; gap:8px; margin-bottom:16px }
-        input[type="text"]{ flex:1; padding:10px 12px; border:1px solid #d1d5db; border-radius:6px }
-        button{ padding:10px 14px; background:#f97316; color:#fff; border:none; border-radius:6px; cursor:pointer }
-        ul{ list-style:none; padding:0; margin:0 }
-        li{ display:flex; justify-content:space-between; gap:12px; padding:8px 0; border-bottom:1px solid #eef2f7 }
-        .meta{ color:#6b7280; font-size:13px }
-        .del{ background:#ef4444 }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0a0a0a;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Animated Background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: linear-gradient(45deg, #0a0a0a, #1a0a2e, #0a0a0a);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: #fff;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 20px 0;
+            background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            transition: all 0.3s;
+        }
+
+        nav.scrolled {
+            padding: 15px 0;
+            box-shadow: 0 5px 30px rgba(138, 43, 226, 0.3);
+        }
+
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 40px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: #fff;
+            text-decoration: none;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            color: #667eea;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding-top: 80px;
+        }
+
+        .hero-content {
+            animation: fadeInUp 1s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            font-size: 72px;
+            font-weight: 900;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.2;
+        }
+
+        .subtitle {
+            font-size: 24px;
+            color: #aaa;
+            margin-bottom: 40px;
+            font-weight: 300;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 16px 40px;
+            border: none;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #fff;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(102, 126, 234, 0.1);
+            transform: translateY(-3px);
+        }
+
+        /* Features Section */
+        .features {
+            padding: 100px 0;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 48px;
+            margin-bottom: 60px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            transition: all 0.3s;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 20px 60px rgba(102, 126, 234, 0.3);
+        }
+
+        .feature-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+            display: inline-block;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .feature-card h3 {
+            font-size: 24px;
+            margin-bottom: 15px;
+            color: #fff;
+        }
+
+        .feature-card p {
+            color: #aaa;
+            line-height: 1.6;
+        }
+
+        /* Stats Section */
+        .stats {
+            padding: 80px 0;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 40px;
+            text-align: center;
+        }
+
+        .stat-item h2 {
+            font-size: 56px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .stat-item p {
+            color: #aaa;
+            font-size: 18px;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            padding: 100px 0;
+            text-align: center;
+        }
+
+        .cta-section h2 {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .cta-section p {
+            font-size: 20px;
+            color: #aaa;
+            margin-bottom: 40px;
+        }
+
+        /* Footer */
+        footer {
+            padding: 60px 0 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .footer-section h3 {
+            margin-bottom: 20px;
+            color: #667eea;
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section ul li {
+            margin-bottom: 10px;
+        }
+
+        .footer-section a {
+            color: #aaa;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-section a:hover {
+            color: #667eea;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 42px;
+            }
+
+            .subtitle {
+                font-size: 18px;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Bài Tập: Frontend kết nối Backend + DB</h1>
+    <div class="bg-animation"></div>
+    <div class="stars" id="stars"></div>
 
-        <div style="display:flex; gap:12px; align-items:center; margin-bottom:12px">
-            <label style="font-size:14px; color:#374151">Chế độ:</label>
-            <select id="mode" style="padding:6px;border-radius:6px;border:1px solid #d1d5db">
-                <option value="auto">Tự động (API → fallback)</option>
-                <option value="api">Chỉ API</option>
-                <option value="local">Chỉ Local (offline)</option>
-            </select>
-            <div id="status" style="margin-left:auto;color:#6b7280;font-size:14px"></div>
+    <nav id="navbar">
+        <div class="container">
+            <div class="nav-content">
+                <div class="logo">✨ Innovate</div>
+                <ul class="nav-links">
+                    <li><a href="#home">Trang Chủ</a></li>
+                    <li><a href="#features">Tính Năng</a></li>
+                    <li><a href="#stats">Thống Kê</a></li>
+                    <li><a href="#contact">Liên Hệ</a></li>
+                </ul>
+            </div>
         </div>
+    </nav>
 
-        <form id="addForm">
-            <input id="title" type="text" placeholder="Tiêu đề item..." required />
-            <button type="submit">Thêm</button>
-        </form>
+    <section class="hero" id="home">
+        <div class="container">
+            <div class="hero-content">
+                <h1>Tương Lai Bắt Đầu<br>Từ Đây</h1>
+                <p class="subtitle">Trải nghiệm công nghệ đỉnh cao với giải pháp sáng tạo và hiện đại</p>
+                <div class="cta-buttons">
+                    <a href="#" class="btn btn-primary">Bắt Đầu Ngay</a>
+                    <a href="#" class="btn btn-secondary">Tìm Hiểu Thêm</a>
+                </div>
+            </div>
+        </div>
+    </section>
 
-        <ul id="list">Loading...</ul>
-    </div>
+    <section class="features" id="features">
+        <div class="container">
+            <h2 class="section-title">Tính Năng Nổi Bật</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🚀</div>
+                    <h3>Tốc Độ Vượt Trội</h3>
+                    <p>Hiệu suất được tối ưu hóa để mang lại trải nghiệm nhanh nhất cho người dùng</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🎨</div>
+                    <h3>Thiết Kế Đẹp Mắt</h3>
+                    <p>Giao diện hiện đại, trực quan và dễ sử dụng trên mọi thiết bị</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔒</div>
+                    <h3>Bảo Mật Tuyệt Đối</h3>
+                    <p>Công nghệ mã hóa tiên tiến đảm bảo an toàn tuyệt đối cho dữ liệu</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3>Tích Hợp Dễ Dàng</h3>
+                    <p>Kết nối mượt mà với các công cụ và nền tảng yêu thích của bạn</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3>Phân Tích Thông Minh</h3>
+                    <p>Hiểu rõ dữ liệu với công cụ phân tích và báo cáo chi tiết</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🌍</div>
+                    <h3>Hỗ Trợ 24/7</h3>
+                    <p>Đội ngũ chuyên nghiệp luôn sẵn sàng hỗ trợ bạn mọi lúc mọi nơi</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="stats" id="stats">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <h2>10K+</h2>
+                    <p>Người Dùng Hài Lòng</p>
+                </div>
+                <div class="stat-item">
+                    <h2>99.9%</h2>
+                    <p>Thời Gian Hoạt Động</p>
+                </div>
+                <div class="stat-item">
+                    <h2>50+</h2>
+                    <p>Quốc Gia</p>
+                </div>
+                <div class="stat-item">
+                    <h2>4.9★</h2>
+                    <p>Đánh Giá Trung Bình</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta-section" id="contact">
+        <div class="container">
+            <h2>Sẵn Sàng Bắt Đầu?</h2>
+            <p>Tham gia cùng hàng ngàn người dùng đã tin tưởng chúng tôi</p>
+            <div class="cta-buttons">
+                <a href="#" class="btn btn-primary">Dùng Thử Miễn Phí</a>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Innovate</h3>
+                    <p style="color: #aaa;">Tạo nên sự khác biệt với công nghệ tiên tiến và giải pháp sáng tạo.</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Sản Phẩm</h3>
+                    <ul>
+                        <li><a href="#">Tính Năng</a></li>
+                        <li><a href="#">Bảng Giá</a></li>
+                        <li><a href="#">Đối Tác</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Công Ty</h3>
+                    <ul>
+                        <li><a href="#">Về Chúng Tôi</a></li>
+                        <li><a href="#">Tin Tức</a></li>
+                        <li><a href="#">Tuyển Dụng</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Hỗ Trợ</h3>
+                    <ul>
+                        <li><a href="#">Trung Tâm Trợ Giúp</a></li>
+                        <li><a href="#">Liên Hệ</a></li>
+                        <li><a href="#">Điều Khoản</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Innovate. All rights reserved. Made with ❤️</p>
+            </div>
+        </div>
+    </footer>
 
     <script>
-        const listEl = document.getElementById('list');
-        const form = document.getElementById('addForm');
-        const titleInput = document.getElementById('title');
-
-        // --- Storage helpers (local fallback) ---
-        const LOCAL_KEY = 'bt_items_v1';
-        function loadLocal(){
-            try{ return JSON.parse(localStorage.getItem(LOCAL_KEY) || '[]') }catch(e){ return [] }
-        }
-        function saveLocal(items){ localStorage.setItem(LOCAL_KEY, JSON.stringify(items)) }
-
-        // --- Mode handling: auto | api | local ---
-        const modeEl = document.getElementById('mode');
-        const statusEl = document.getElementById('status');
-        function setStatus(text){ statusEl.textContent = text }
-        function getMode(){ return modeEl.value }
-
-        async function fetchItems(){
-            const mode = getMode();
-            if(mode === 'local'){
-                render(loadLocal());
-                setStatus('Local (offline)');
-                return;
-            }
-
-            try{
-                const res = await fetchWithTimeout('/api/items', { timeout: 3000 });
-                const items = await res.json();
-                render(items);
-                setStatus('API (online)');
-            }catch(e){
-                if(mode === 'api'){
-                    listEl.innerHTML = '<li>Không thể kết nối tới server.</li>';
-                    setStatus('API thất bại');
-                }else{
-                    // fallback to local
-                    render(loadLocal());
-                    setStatus('Fallback → Local');
-                }
-            }
+        // Create stars
+        const starsContainer = document.getElementById('stars');
+        for (let i = 0; i < 100; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.style.left = Math.random() * 100 + '%';
+            star.style.top = Math.random() * 100 + '%';
+            star.style.animationDelay = Math.random() * 3 + 's';
+            starsContainer.appendChild(star);
         }
 
-        function fetchWithTimeout(resource, options = {}){
-            const { timeout = 5000 } = options;
-            return Promise.race([
-                fetch(resource, options),
-                new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), timeout))
-            ]);
-        }
-
-        function render(items){
-            if(!items || items.length===0){ listEl.innerHTML = '<li>Chưa có item nào.</li>'; return }
-            listEl.innerHTML = items.map(it=>{
-                const id = it.id ?? it._local_id;
-                const created = it.created_at ?? it.created_at_local ?? new Date().toISOString();
-                return `
-                <li data-id="${id}">
-                    <div>
-                        <div><strong>${escapeHtml(it.title)}</strong></div>
-                        <div class="meta">#${id} • ${new Date(created).toLocaleString()}</div>
-                    </div>
-                    <div>
-                        <button class="del" onclick="deleteItem('${id}')">Xóa</button>
-                    </div>
-                </li>`
-            }).join('');
-        }
-
-        function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])) }
-
-        form.addEventListener('submit', async e=>{
-            e.preventDefault();
-            const title = titleInput.value.trim();
-            if(!title) return;
-            const mode = getMode();
-            if(mode === 'local'){
-                const items = loadLocal();
-                const localItem = { _local_id: Date.now(), title, created_at_local: new Date().toISOString() };
-                items.unshift(localItem);
-                saveLocal(items);
-                titleInput.value = '';
-                fetchItems();
-                return;
-            }
-
-            // try API first
-            try{
-                await fetch('/api/items',{ method: 'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({title}) });
-                titleInput.value = '';
-                fetchItems();
-            }catch(e){
-                if(mode === 'api'){
-                    alert('Không thể kết nối tới server.');
-                }else{
-                    // fallback to local
-                    const items = loadLocal();
-                    const localItem = { _local_id: Date.now(), title, created_at_local: new Date().toISOString() };
-                    items.unshift(localItem);
-                    saveLocal(items);
-                    titleInput.value = '';
-                    fetchItems();
-                }
+        // Navbar scroll effect
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 100) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
             }
         });
 
-        async function deleteItem(id){
-            if(!confirm('Xóa item #' + id + '?')) return;
-            const mode = getMode();
-            if(mode === 'local'){
-                const items = loadLocal().filter(it => String((it.id ?? it._local_id)) !== String(id));
-                saveLocal(items);
-                fetchItems();
-                return;
-            }
-            // try API delete first
-            try{
-                await fetch('/api/items/'+id, { method: 'DELETE' });
-                fetchItems();
-            }catch(e){
-                if(mode === 'api'){
-                    alert('Không thể kết nối tới server.');
-                }else{
-                    // fallback to local deletion
-                    const items = loadLocal().filter(it => String((it.id ?? it._local_id)) !== String(id));
-                    saveLocal(items);
-                    fetchItems();
+        // Smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
                 }
-            }
-        }
+            });
+        });
 
-        modeEl.addEventListener('change', fetchItems);
-        // expose delete for inline onclick
-        window.deleteItem = deleteItem;
-        // initial try
-        fetchItems();
+        // Animate stats on scroll
+        const observerOptions = {
+            threshold: 0.5
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animation = 'fadeInUp 1s ease';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.feature-card, .stat-item').forEach(el => {
+            observer.observe(el);
+        });
     </script>
 </body>
 </html>
