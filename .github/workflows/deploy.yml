@@ -1,0 +1,17 @@
+name: Kiem Tra Code Va Deploy
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Lay code ve may chu GitHub
+      uses: actions/checkout@v3
+
+    - name: Thong bao dang deploy
+      run: echo "Phat hien code thay doi! Dang kiem tra..."
+
+    - name: Kiem tra code HTML
+      run: echo "Code HTML on dinh. San sang deploy!"
